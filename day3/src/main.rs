@@ -4,8 +4,6 @@ use std::collections::HashSet;
 
 struct RuckSack {
     all: String,
-    comp1: String,
-    comp2: String,
     comp1set: HashSet<char>,
     comp2set: HashSet<char>,
 }
@@ -23,12 +21,12 @@ impl RuckSack {
         for c in c2.chars() {
             c2set.insert(c);
         }
-        RuckSack { all: input.to_string(), comp1: (c1.to_string()), comp2: (c2.to_string()), comp1set: c1set, comp2set: c2set }
+        RuckSack { all: input.to_string(), comp1set: c1set, comp2set: c2set }
     }
 }
 
 fn score_item(c: char) -> u32 {
-    let mut score:u32 = 0;
+    let score:u32;
     if c as u32 >= 97 {
         score = c as u32 - 96;
     }
@@ -36,8 +34,7 @@ fn score_item(c: char) -> u32 {
         score = c as u32 - 38;
     }
     if score < 1 || score > 52 {
-        let error = format!("{}:{} score {}", c, c as u32, score);
-        panic!("{}", error)
+        panic!("{}", format!("{}:{} score {}", c, c as u32, score))
     }
     score
 }
@@ -54,13 +51,14 @@ fn main() {
     let mut maingroupset = HashSet::<char>::new();
 
     for line in reader.lines() {
+        // Part 1
         count += 1;
         let sack = RuckSack::init(line.as_ref().unwrap());
         let mut common = sack.comp1set.intersection(&sack.comp2set);
         score = score + score_item(*common.next().unwrap());
         assert_eq!(common.next(), None);
 
-        //Part 2
+        // Part 2
         match count % 3 {
             1 => {
                 for c in sack.all.chars() {
@@ -94,8 +92,11 @@ fn main() {
             _ => { panic!("error"); }
         }
     }
+    // Part 1
     println!("Score: {}", score);
+    // Part 2
     println!("Group Score: {}", groupscore);
+    // Correct Answers
     assert_eq!(score, 8493);
     assert_eq!(groupscore, 2552);
 }
