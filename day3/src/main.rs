@@ -3,6 +3,7 @@ use std::io::{prelude::*, BufReader};
 use std::collections::HashSet;
 
 struct RuckSack {
+    all: String,
     comp1: String,
     comp2: String,
     comp1set: HashSet<char>,
@@ -22,7 +23,7 @@ impl RuckSack {
         for c in c2.chars() {
             c2set.insert(c);
         }
-        RuckSack { comp1: (c1.to_string()), comp2: (c2.to_string()), comp1set: c1set, comp2set: c2set }
+        RuckSack { all: input.to_string(), comp1: (c1.to_string()), comp2: (c2.to_string()), comp1set: c1set, comp2set: c2set }
     }
 }
 
@@ -45,13 +46,58 @@ fn main() {
     let file = File::open("./input.txt").unwrap();
     let reader = BufReader::new(file);
     let mut score = 0;
+    let mut groupscore = 0;
+    let mut count = 0;
+    let mut groupset1 = HashSet::<char>::new();
+    let mut groupset2 = HashSet::<char>::new();
+    let mut groupset3 = HashSet::<char>::new();
+    let mut maingroupset = HashSet::<char>::new();
+
     for line in reader.lines() {
+        count += 1;
         let sack = RuckSack::init(line.as_ref().unwrap());
         let mut common = sack.comp1set.intersection(&sack.comp2set);
         score = score + score_item(*common.next().unwrap());
-        assert_eq!(common.next(), None)
+        assert_eq!(common.next(), None);
+
+        //Part 2
+        match count % 3 {
+            1 => {
+                for c in sack.all.chars() {
+                    groupset1.insert(c);
+                }
+            }
+            2 => {
+                for c in sack.all.chars() {
+                    groupset2.insert(c);
+                }
+            }
+            0 => {
+                for c in sack.all.chars() {
+                    groupset3.insert(c);
+                }
+                // Tricky part
+                let mut group_common = groupset1.intersection(&groupset2);
+
+                for item in group_common {
+                    maingroupset.insert(*item);
+                }
+                group_common = groupset3.intersection(&maingroupset);
+                groupscore += score_item(*group_common.next().unwrap());
+                assert_eq!(common.next(), None);
+
+                groupset1.clear();
+                groupset2.clear();
+                groupset3.clear();
+                maingroupset.clear();
+            }
+            _ => { panic!("error"); }
+        }
     }
     println!("Score: {}", score);
+    println!("Group Score: {}", groupscore);
+    assert_eq!(score, 8493);
+    assert_eq!(groupscore, 2552);
 }
 
 #[cfg(test)]
