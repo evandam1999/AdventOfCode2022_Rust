@@ -1,3 +1,3 @@
-# AdventOfCode2022_Rust
+# Advent of Code 2022 (in Rust)
 
 https://adventofcode.com/
