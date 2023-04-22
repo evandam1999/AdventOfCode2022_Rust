@@ -113,7 +113,6 @@ fn main() {
     println!("Part 1: {}", answer);
 
 
-    // TODO: Why do I have to redo all this and not just reuse it.
     let file = File::open("./input.txt").unwrap();
     let reader = BufReader::new(file);
     let mut s: stack = stack::default();
