@@ -42,8 +42,20 @@ impl stack {
         if len >= 33 {if v[33] != ' ' { self.s[8].push_front(v[33])}};
     }
 
-    //TODO:  Issue is here in that moving 2 should move them as a group not one at a time??
-    fn process_move(&mut self, input: &amove) {
+    fn process_move_9001(&mut self, input: &amove) {
+        // println!("process_move");
+        let from: usize = input.from as usize;
+        let to: usize = input.to as usize;
+        let from_len = self.s[from].len();
+        let at = from_len-input.count as usize;
+        // println!("split at: {}", at);
+        let mut moving = self.s[from].split_off(at);
+        // println!("{:?}", moving);
+        // println!("{:?}", self.s[from]);
+        self.s[to].append(&mut moving);
+    }
+
+    fn process_move_9000(&mut self, input: &amove) {
         let from: usize = input.from as usize;
         let to: usize = input.to as usize;
         for i in 0..input.count {
@@ -86,15 +98,49 @@ fn main() {
             moves.push_back(a);
         }
     }
-    // println!("{:?}", s);
+
+    // Part 1
     for m in moves {
-        s.process_move(&m);
+        // println!("{:?}", m);
+        s.process_move_9001(&m);
     }
-    println!("{:?}", s);
+    // println!("{:?}", s);
+    let mut answer = String::new();
     for c in &s.s {
-        println!("{:?}", c.back().unwrap());
+        // println!("{:?}", c.back().unwrap());
+        answer.push(*c.back().unwrap());
     }
-    println!("{}", "I NEED TO CLEAN THIS OUTPUT UP to just give the answer");
+    println!("Part 1: {}", answer);
+
+
+    // TODO: Why do I have to redo all this and not just reuse it.
+    let file = File::open("./input.txt").unwrap();
+    let reader = BufReader::new(file);
+    let mut s: stack = stack::default();
+    let mut moves: VecDeque<amove> = VecDeque::new();
+    for line in reader.lines() {
+        if line.as_ref().unwrap().contains("[") {
+            println!("{:?}", line);
+            s.add_from_top(&line.unwrap())
+        }
+        else if line.as_ref().unwrap().contains("move") {
+            let a = amove::init(&line.unwrap());
+            moves.push_back(a);
+        }
+    }
+
+    // Part 2
+    for m in moves {
+        // println!("{:?}", m);
+        s.process_move_9001(&m);
+    }
+    // println!("{:?}", s);
+    let mut answer = String::new();
+    for c in &s.s {
+        // println!("{:?}", c.back().unwrap());
+        answer.push(*c.back().unwrap());
+    }
+    println!("Part 2: {}", answer);
 
 }
 
@@ -125,8 +171,8 @@ mod tests {
         s.add_from_top("[D]                     [N] [F]    ");
         s.add_from_top("[X]                     [N] [F]    ");
         let a = amove::init("move 2 from 1 to 2");
-        s.process_move(&a);
-        println!("{:?}", s)
+        s.process_move_9000(&a);
+        // println!("{:?}", s)
     }
 
     #[test]
